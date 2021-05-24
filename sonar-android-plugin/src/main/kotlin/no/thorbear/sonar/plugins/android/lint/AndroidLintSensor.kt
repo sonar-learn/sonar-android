@@ -2,35 +2,36 @@ package no.thorbear.sonar.plugins.android.lint
 
 import no.thorbear.sonar.plugins.android.AndroidPlugin
 import org.slf4j.LoggerFactory
-import org.sonar.api.batch.Sensor
-import org.sonar.api.batch.SensorContext
+import org.sonar.api.batch.sensor.Sensor
+import org.sonar.api.batch.sensor.SensorContext
 import org.sonar.api.batch.fs.FileSystem
-import org.sonar.api.component.ResourcePerspectives
-import org.sonar.api.config.Settings
+import org.sonar.api.batch.fs.InputFile
+import org.sonar.api.batch.sensor.SensorDescriptor
+import org.sonar.api.config.Configuration
 import org.sonar.api.profiles.RulesProfile
-import org.sonar.api.resources.Project
 import java.io.File
 
 class AndroidLintSensor(
-    settings: Settings,
     private val profile: RulesProfile,
-    private val perspectives: ResourcePerspectives,
     private val fs: FileSystem
 ) :
     Sensor {
 
-    private val lintReport: File?
-
-    init {
-        this.lintReport = getFile(settings.getString(AndroidPlugin.LINT_REPORT_PROPERTY))
+    override fun describe(descriptor: SensorDescriptor) {
+        descriptor
+            .onlyOnLanguages("java", "kt")
+            .name("AndroidLint")
+            .onlyOnFileType(InputFile.Type.MAIN)
+            .onlyWhenConfiguration{ config : Configuration -> config.hasKey(AndroidPlugin.LINT_REPORT_PROPERTY) }
     }
 
-    override fun analyse(project: Project, sensorContext: SensorContext) {
-        AndroidLintProcessor(profile, perspectives, fs).process(lintReport!!)
-    }
-
-    override fun shouldExecuteOnProject(project: Project): Boolean {
-        return lintReport != null && lintReport.exists()
+    override fun execute(context: SensorContext) {
+        val lintReport = getFile(
+            context.config()
+                .get(AndroidPlugin.LINT_REPORT_PROPERTY)
+                .orElse(AndroidPlugin.LINT_REPORT_PROPERTY_DEFAULT)
+        )
+        AndroidLintProcessor(context, profile).process(lintReport!!)
     }
 
     private fun getFile(path: String): File? {

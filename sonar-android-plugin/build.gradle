@@ -12,8 +12,8 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$versions.kotlin"
     compile("org.simpleframework:simple-xml:$versions.simplexml") { transitive = false }
 
-    implementation("org.codehaus.sonar:sonar-plugin-api:$versions.sonar") { transitive = false }
-    implementation("org.codehaus.sonar-plugins.java:sonar-java-plugin:$versions.sonarJava") { transitive = false }
+    implementation("org.sonarsource.sonarqube:sonar-plugin-api:$versions.sonar") { transitive = false }
+    implementation("org.sonarsource.java:sonar-java-plugin:$versions.sonarJava") { transitive = false }
     implementation("org.codehaus.staxmate:staxmate:$versions.staxmate") { transitive = false }
     implementation "org.slf4j:slf4j-api:$versions.slf4j"
 

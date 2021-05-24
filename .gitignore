@@ -7,13 +7,7 @@
 
 # IntelliJ
 *.iml
-.idea/caches
-.idea/dictionaries
-.idea/libraries
-.idea/assetWizardSettings.xml
-.idea/gradle.xml
-.idea/tasks.xml
-.idea/workspace.xml
+.idea
 
 # Apple/Mac files
 .DS_Store

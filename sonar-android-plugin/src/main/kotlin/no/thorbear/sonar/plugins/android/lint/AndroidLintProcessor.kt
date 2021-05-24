@@ -5,18 +5,18 @@ import org.simpleframework.xml.ElementList
 import org.simpleframework.xml.Root
 import org.simpleframework.xml.core.Persister
 import org.slf4j.LoggerFactory
-import org.sonar.api.batch.fs.FileSystem
-import org.sonar.api.component.ResourcePerspectives
-import org.sonar.api.issue.Issuable
+import org.sonar.api.batch.sensor.SensorContext
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation
 import org.sonar.api.profiles.RulesProfile
+import org.sonar.api.rule.RuleKey
 import org.sonar.api.rules.ActiveRule
 import java.io.File
 
+
 class AndroidLintProcessor(
-    private val profile: RulesProfile,
-    private val perspectives: ResourcePerspectives,
-    private val fileSystem: FileSystem
-) {
+    private val context: SensorContext,
+    private val profile: RulesProfile
+    ) {
 
     private val logger = LoggerFactory.getLogger(AndroidLintProcessor::class.java)
 
@@ -46,19 +46,18 @@ class AndroidLintProcessor(
     }
 
     private fun processIssueForLocation(rule: ActiveRule, lintIssue: LintIssue, lintLocation: LintLocation) {
-        val inputFile = fileSystem.inputFile(fileSystem.predicates().hasPath(lintLocation.file!!))
+        val inputFile = context.fileSystem().inputFile(context.fileSystem().predicates().hasPath(lintLocation.file!!))
         if (inputFile != null) {
             logger.debug("Processing File {} for Issue {}", lintLocation.file, lintIssue.id)
-            val issuable = perspectives.`as`(Issuable::class.java, inputFile)
-            if (issuable != null) {
-                val issue = issuable.newIssueBuilder()
-                    .ruleKey(rule.rule.ruleKey())
-                    .message(lintIssue.message)
-                    .line(lintLocation.line)
-                    .build()
-                issuable.addIssue(issue)
-                return
-            }
+            val dil = DefaultIssueLocation()
+                .on(inputFile)
+                .at(lintLocation.line?.let { inputFile.selectLine(it) }!!)
+                .message(lintIssue.message!!)
+            context.newIssue()
+                .forRule(RuleKey.of(rule.repositoryKey, rule.ruleKey))
+                .at(dil)
+                .save()
+
         }
         logger.warn("Unable to find file {} to report issue", lintLocation.file)
     }
