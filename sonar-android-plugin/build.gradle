@@ -20,7 +20,7 @@ dependencies {
     testImplementation "junit:junit:$versions.junit"
     testImplementation "org.mockito:mockito-all:$versions.mockito"
     // Needed to get the dependencies that sonar has at runtime
-    testImplementation("org.codehaus.sonar:sonar-plugin-api:$versions.sonar")
+    testImplementation("org.sonarsource.sonarqube:sonar-plugin-api:$versions.sonar")
     testImplementation "org.slf4j:slf4j-simple:$versions.slf4j"
 }
 
