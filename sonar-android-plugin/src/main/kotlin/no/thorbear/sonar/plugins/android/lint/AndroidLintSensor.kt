@@ -19,7 +19,7 @@ class AndroidLintSensor(
 
     override fun describe(descriptor: SensorDescriptor) {
         descriptor
-            .onlyOnLanguages("java", "kt")
+            .onlyOnLanguages("java", "xml")
             .name("AndroidLint")
             .onlyOnFileType(InputFile.Type.MAIN)
             .onlyWhenConfiguration{ config : Configuration -> config.hasKey(AndroidPlugin.LINT_REPORT_PROPERTY) }
